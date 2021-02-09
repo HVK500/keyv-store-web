@@ -1,10 +1,12 @@
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import logger from 'morgan';
 import Routes from './interfaces/routes-interface';
+import apikeyMiddleware from './middlewares/apikey-middleware';
 import errorMiddleware from './middlewares/error-middleware';
+import originAppendMiddleware from './middlewares/origin-append-middleware';
 import { getLogWriteStream } from './utils/util';
 import { envValue } from './utils/validate-env';
 
@@ -36,23 +38,31 @@ export default class App {
   }
 
   private initializeMiddlewares(): void {
+    let corsOptions: CorsOptions = { origin: true };
+
     if (this.env) {
       this.app.use(hpp());
       this.app.use(helmet());
+      this.app.use(apikeyMiddleware);
       this.app.use(logger('combined', {
         stream: envValue<boolean>('LOG_FILE') ? getLogWriteStream() : undefined
       }));
-      this.app.use(cors({
-        origin: (origin, callback) => {
-          const isWhitelisted = this.corsWhitelist.includes(origin);
-          callback(isWhitelisted ? null : new Error('Request prevented by CORS'), isWhitelisted);
-        }
-      }));
+
+      if (this.corsWhitelist.length > 0) {
+        this.app.use(originAppendMiddleware);
+        corsOptions = {
+          origin: (origin, callback) => {
+            console.log('origin is', origin);
+            const isWhitelisted = this.corsWhitelist.includes(origin);
+            callback(isWhitelisted ? null : new Error('Request prevented by CORS'), isWhitelisted);
+          }
+        };
+      }
     } else {
       this.app.use(logger('dev'));
-      this.app.use(cors({ origin: true }));
     }
 
+    this.app.use(cors(corsOptions));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
   }

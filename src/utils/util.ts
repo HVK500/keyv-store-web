@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { createLogger, Logger, transports } from 'winston';
 
 export const pathing = path;
 

@@ -2,7 +2,6 @@ import { RequestHandler, Router } from 'express';
 import DbController from '../controllers/db-controller';
 import { TransactionDto } from '../dtos/transaction-dto';
 import Route from '../interfaces/routes-interface';
-import apikeyMiddleware from '../middlewares/apikey-middleware';
 import validationMiddleware from '../middlewares/validation-middleware';
 
 export default class DbRoute implements Route {
@@ -17,7 +16,6 @@ export default class DbRoute implements Route {
   private createRoute(method: string, path: string, handler: RequestHandler): void {
     this.router[method as 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'](
       `${this.base}${path}`,
-      apikeyMiddleware,
       validationMiddleware(TransactionDto),
       handler
     );
