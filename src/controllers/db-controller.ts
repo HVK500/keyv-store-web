@@ -6,11 +6,9 @@ export default class DbController {
   private static service = new DbService();
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const trx: TransactionDto = req.body;
-
     try {
-      await DbController.service.update(trx);
-      res.status(204)
+      await DbController.service.update(req.body as TransactionDto);
+      res.status(200)
         .end();
     } catch (err) {
       next(err);

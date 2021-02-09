@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import { bool, cleanEnv, json, num, port, str, CleanedEnvAccessors } from 'envalid';
 
 let envConfig = {} as Readonly<any & CleanedEnvAccessors>;
 
-export default function validateEnv() {
+export default function validateEnv(): void {
   envConfig = cleanEnv(process.env, {
     NODE_ENV: str(),
     API_KEY: str(),
