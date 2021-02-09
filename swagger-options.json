@@ -1,0 +1,27 @@
+{
+  "swaggerDefinition": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "Keyv Store Web API",
+      "description": "A CRUD web API built to interface with the Keyv key-value store adapter layer."
+    },
+    "basePath": "/",
+    "components": {
+      "securitySchemes": {
+        "apiKey": {
+          "type": "apiKey",
+          "name": "x-api-key",
+          "in": "header"
+        }
+      }
+    },
+    "security": [
+      {
+        "apiKey": []
+      }
+    ]
+  },
+  "apis": [
+    "swagger.yaml"
+  ]
+}

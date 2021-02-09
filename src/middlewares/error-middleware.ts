@@ -8,5 +8,7 @@ export default function errorMiddleware(error: HttpException, req: Request, res:
   console.error('[ERROR] ', status, message);
 
   res.status(status)
-    .json({ message: message });
+    .json({
+      message: message
+    });
 }

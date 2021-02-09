@@ -1,4 +1,3 @@
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
@@ -6,76 +5,79 @@ import hpp from 'hpp';
 import logger from 'morgan';
 import Routes from './interfaces/routes-interface';
 import errorMiddleware from './middlewares/error-middleware';
+import { getLogWriteStream } from './utils/util';
+import { envValue } from './utils/validate-env';
 
 export default class App {
   app: express.Application;
-  port: (string | number);
+  port: number;
+  corsWhitelist: string[];
   env: boolean;
 
   constructor(routes: Routes[]) {
     this.app = express();
-    this.port = process.env.PORT || 3000;
-    this.env = process.env.NODE_ENV === 'production' ? true : false;
+    this.env = envValue<boolean>('isProduction');
+    this.port = envValue('PORT');
+    this.corsWhitelist = envValue<string[]>('CORS_ORIGINS');
+
+    if (envValue<boolean>('EXPOSE_SWAGGER')) {
+      this.initializeSwagger();
+    }
 
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
-    this.initializeSwagger();
     this.initializeErrorHandling();
   }
 
-  listen() {
+  listen(): void {
     this.app.listen(this.port, () => {
-      console.log(`🚀 App listening on the port ${this.port}`);
+      console.log(`App listening on the port ${this.port}`);
     });
   }
 
-  getServer() {
-    return this.app;
-  }
-
-  private initializeMiddlewares() {
+  private initializeMiddlewares(): void {
     if (this.env) {
       this.app.use(hpp());
       this.app.use(helmet());
-      this.app.use(logger('combined'));
-      this.app.use(cors({ origin: 'your.domain.com', credentials: true }));
+      this.app.use(logger('combined', {
+        stream: envValue<boolean>('LOG_FILE') ? getLogWriteStream() : undefined
+      }));
+      this.app.use(cors({
+        origin: (origin, callback) => {
+          const isWhitelisted = this.corsWhitelist.includes(origin);
+          callback(isWhitelisted ? null : new Error('Request prevented by CORS'), isWhitelisted);
+        }
+      }));
     } else {
       this.app.use(logger('dev'));
-      this.app.use(cors({ origin: true, credentials: true }));
+      this.app.use(cors({ origin: true }));
     }
 
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cookieParser());
   }
 
-  private initializeRoutes(routes: Routes[]) {
+  private initializeRoutes(routes: Routes[]): void {
     routes.forEach((route) => {
       this.app.use('/', route.router);
     });
   }
-  private initializeSwagger() {
+
+  private initializeSwagger(): void {
     // tslint:disable-next-line: no-require-imports
     const swaggerJSDoc = require('swagger-jsdoc');
     // tslint:disable-next-line: no-require-imports
     const swaggerUi = require('swagger-ui-express');
-
-    const options = {
-      swaggerDefinition: {
-        info: {
-          title: 'REST API',
-          version: '1.0.0',
-          description: 'Example docs',
-        },
-      },
-      apis: ['swagger.yaml'],
-    };
+    // tslint:disable-next-line: no-require-imports
+    const options = require('../swagger-options.json');
+    // tslint:disable-next-line: no-require-imports
+    options.version = require('../package.json').version;
 
     const specs = swaggerJSDoc(options);
     this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(specs));
   }
 
-  private initializeErrorHandling() {
+  private initializeErrorHandling(): void {
     this.app.use(errorMiddleware);
   }
 }

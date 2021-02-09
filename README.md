@@ -1,2 +1,2 @@
-# Starter Node Server
-A template project to use when creating a typescript based node server API / app.
+# Keyv Store Web API
+A CRUD web API built to interface with the Keyv key-value store adapter layer.

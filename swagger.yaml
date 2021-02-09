@@ -1,126 +1,137 @@
 tags:
-- name: users
-  description: users API
+- name: Datebase
 
 paths:
-# [GET] users
-  /users:
-    get:
-      tags:
-      - users
-      summary: Find All Users
-      responses:
-        200:
-          description: 'OK'
-        500:
-          description: 'Server Error'
-
-# [POST] users
-    post:
-      tags:
-      - users
-      summary: Add User
-      parameters:
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
-      responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-# [GET] users/id
-  /users/{id}:
-    get:
-      tags:
-      - users
-      summary: Find User By Id
-      parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
-        type: integer
-      responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-# [PUT] users/id
+# [PUT] update
+  /db/update:
     put:
       tags:
-      - users
-      summary: Update User By Id
-      parameters:
-      - name: id
-        in: path
-        description: user Id
+      - Datebase
+      summary: inserts key-value under the given namespace, if key exists in namespace value is updated.
+      requestBody:
+        description: transaction Data
         required: true
-        type: integer
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        content:
+          'application/json':
+            schema:
+              $ref: '#/definitions/trx-value'
       responses:
         200:
-          description: 'OK'
+          description: 'Transaction successful'
         400:
           description: 'Bad Request'
-        409:
-          description: 'Conflict'
         500:
           description: 'Server Error'
-
-# [DELETE] users/id
+# [DELETE] update
     delete:
       tags:
-      - users
-      summary: Delete User By Id
+      - Datebase
+      summary: Removes a key and its value from the given namespace.
       parameters:
-      - name: id
-        in: path
-        description: user Id
+      - name: body
+        in: body
+        description: transaction Data
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/trx-key'
       responses:
         200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
+          description: 'Transaction successful'
+        400:
+          description: 'Bad Request'
+        500:
+          description: 'Server Error'
+# [POST] select
+  /db/select:
+    post:
+      tags:
+      - Datebase
+      summary: Selects the given key under the given namespace.
+      requestBody:
+        description: transaction Data
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/definitions/trx-key'
+      responses:
+        200:
+          description: 'Transaction successful'
+        400:
+          description: 'Bad Request'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+# [POST] exists
+  /db/exists:
+    post:
+      tags:
+      - Datebase
+      summary: Whether a key is present in the target DB.
+      requestBody:
+        description: transaction Data
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/definitions/trx-key'
+      responses:
+        200:
+          description: 'Transaction successful'
+        400:
+          description: 'Bad Request'
+        500:
+          description: 'Server Error'
+# [DELETE] empty
+  /db/empty:
+    put:
+      tags:
+      - Datebase
+      summary: Removes all key-values under the given namespace.
+      requestBody:
+        description: transaction Data
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/definitions/trx-key'
+      responses:
+        200:
+          description: 'Transaction successful'
+        400:
+          description: 'Bad Request'
         500:
           description: 'Server Error'
 
 # definitions
 definitions:
-  users:
+  trx-key:
     type: object
     required:
-        - email
-        - password
+      - key
     properties:
-      id:
-        type: integer
-        description: user Id
-      email:
+      namespace:
         type: string
-        description: user Email
-      password:
+        description: Namespace
+      key:
         type: string
-        description: user Password
+        description: Key
+  trx-value:
+    type: object
+    required:
+      - key
+      - value
+    properties:
+      namespace:
+        type: string
+        description: Namespace
+      key:
+        type: string
+        description: Key
+      value:
+        type: object
+        description: JSON value
 
 schemes:
-  - https
   - http

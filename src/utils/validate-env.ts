@@ -1,11 +1,22 @@
-import { cleanEnv, port, str } from 'envalid';
+import { bool, cleanEnv, json, num, port, str, CleanedEnvAccessors } from 'envalid';
 
-function validateEnv() {
-  cleanEnv(process.env, {
+let envConfig = {} as Readonly<any & CleanedEnvAccessors>;
+
+export default function validateEnv() {
+  envConfig = cleanEnv(process.env, {
     NODE_ENV: str(),
-    JWT_SECRET: str(),
-    PORT: port(),
+    API_KEY: str(),
+    CONN_STRING: str({ default: '' }),
+    STORE_OPTS: json({ default: {} }),
+    MAX_CONN: num({ default: 100 }),
+    MAX_CONN_AGE: num({ default: 300 }), // 300sec = 5min
+    CORS_ORIGINS: json({ default: [ 'http://localhost' ] }),
+    PORT: port({ default: 8050 }),
+    EXPOSE_SWAGGER: bool({ default: false }),
+    LOG_FILE: bool({ default: true })
   });
 }
 
-export default validateEnv;
+export const envValue = <T = string>(key: string): T => {
+  return envConfig[key] as unknown as T;
+}
