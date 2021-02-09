@@ -11,7 +11,6 @@ export default function validateEnv(): void {
     STORE_OPTS: json({ default: {} }),
     MAX_CONN: num({ default: 100 }),
     MAX_CONN_AGE: num({ default: 300 }), // 300sec = 5min
-    CORS_ORIGINS: json({ default: [ 'http://localhost' ] }),
     PORT: port({ default: 8050 }),
     EXPOSE_SWAGGER: bool({ default: false }),
     LOG_FILE: bool({ default: true })
