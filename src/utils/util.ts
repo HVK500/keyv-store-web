@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export const pathing = path;
+export const createWriteStream = fs.createWriteStream;
 
 // tslint:disable-next-line: no-empty
 export const noop = (...params: any) => {};
@@ -23,21 +24,14 @@ export const fileExists = (path: string): boolean => {
   return fs.existsSync(path);
 };
 
-export const getLogWriteStream = (): fs.WriteStream => {
-  return fs.createWriteStream(
-    createPath(`./logs/${getTimeStamp()}.log`),
-    { flags: 'a' }
-  );
-};
-
-const getTimeStamp = (): string => {
+export const getTimeStamp = (): string => {
   return new Date()
     .toISOString()
-    .replace(/T|\:|\./g, '-')
+    .replace(/T|\:|\./g, '.')
     .replace('Z', '');
 };
 
-const createPath = (path: string): string => {
+export const createPath = (path: string): string => {
   const directory = pathing.dirname(path);
   fs.mkdirSync(directory, { recursive: true });
   return path;

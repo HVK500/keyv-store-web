@@ -8,7 +8,7 @@ export default function apikeyMiddleware(req: Request, res: Response, next: Next
 
   if (!reqToken) {
     exception = new HttpException(400, 'No API key provided.');
-  } else if (reqToken !== envValue('API_KEY')) {
+  } else if (reqToken !== envValue<string>('API_KEY')) {
     exception = new HttpException(401, 'API key unauthorized');
   }
 

@@ -85,7 +85,7 @@ paths:
           description: 'Server Error'
 # [DELETE] empty
   /db/empty:
-    put:
+    delete:
       tags:
       - Datebase
       summary: Removes all key-values under the given namespace.
@@ -95,7 +95,7 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: '#/definitions/trx-key'
+              $ref: '#/definitions/trx-namespace'
       responses:
         200:
           description: 'Transaction successful'
@@ -106,6 +106,12 @@ paths:
 
 # definitions
 definitions:
+  trx-namespace:
+    type: object
+    properties:
+      namespace:
+        type: string
+        description: Namespace
   trx-key:
     type: object
     required:

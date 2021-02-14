@@ -6,7 +6,6 @@ import validationMiddleware from '../middlewares/validation-middleware';
 
 export default class DbRoute implements Route {
   router = Router();
-  dbController = new DbController();
   private readonly base = '/db';
 
   constructor() {
@@ -22,12 +21,13 @@ export default class DbRoute implements Route {
   }
 
   private initializeRoutes(): void {
+    const dbController = new DbController();
     [
-      { method: 'put', path: '/update', handler: this.dbController.update },
-      { method: 'delete', path: '/update', handler: this.dbController.remove },
-      { method: 'post', path: '/select', handler: this.dbController.select },
-      { method: 'post', path: '/exists', handler: this.dbController.exists },
-      { method: 'delete', path: '/empty', handler: this.dbController.empty }
+      { method: 'put', path: '/update', handler: dbController.update },
+      { method: 'delete', path: '/update', handler: dbController.remove },
+      { method: 'post', path: '/select', handler: dbController.select },
+      { method: 'post', path: '/exists', handler: dbController.exists },
+      { method: 'delete', path: '/empty', handler: dbController.empty }
     ].forEach((route) => {
       this.createRoute(route.method, route.path, route.handler);
     });

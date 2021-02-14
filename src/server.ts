@@ -3,9 +3,17 @@ validateEnv();
 
 import App from './app';
 import DbRoute from './routes/db-route';
+import ConnectionService from './services/connection-service';
 
-const app = new App([
-  new DbRoute()
-]);
+// tslint:disable-next-line: no-floating-promises
+ConnectionService.ping()
+  .then(() => {
+    const app = new App([
+      new DbRoute()
+    ]);
 
-app.listen();
+    app.listen();
+  })
+  .catch((err) => {
+    throw new Error(err);
+  });
