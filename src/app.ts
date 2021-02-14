@@ -17,6 +17,10 @@ export default class App {
     this.port = envValue<number>('PORT');
     this.loggingEnabled = envValue<string>('LOG_LEVEL') !== 'silent';
 
+    if (envValue<boolean>('EXPOSE_SWAGGER')) {
+      this.initializeSwagger();
+    }
+
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeErrorHandling();
@@ -52,10 +56,6 @@ export default class App {
     routes.forEach((route) => {
       this.app.use('/', route.router);
     });
-
-    if (envValue<boolean>('EXPOSE_SWAGGER')) {
-      this.initializeSwagger();
-    }
   }
 
   private initializeSwagger(): void {
